@@ -272,7 +272,7 @@ const handleDeleteAddress = async () => {
       
       // 2. Confirmar pago en nuestro backend
       await axios.post(
-        "${import.meta.env.VITE_API_URL}/api/orders/paypal/capture",
+        `${import.meta.env.VITE_API_URL}/api/orders/paypal/capture`,
         {
           paypalOrderId: data.orderID,
           amount: cartSummary.totalDiscounted

@@ -45,6 +45,7 @@ const Checkout = () => {
   const [addressToDelete, setAddressToDelete] = useState(null);
   const [localCart, setLocalCart] = useState([]);
 
+    const [selectedAddress, setSelectedAddress] = useState(null);
  
  
   const [cartSummary, setCartSummary] = useState({

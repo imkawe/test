@@ -100,7 +100,7 @@ const Checkout = () => {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        const { data } = await axios.get("${import.meta.env.VITE_API_URL}/api/addresses", getAuthHeader());
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/addresses`, getAuthHeader());
         setAddresses(data.data.map(transformAddress));
       } catch (error) {
         toast.error("Error cargando direcciones");

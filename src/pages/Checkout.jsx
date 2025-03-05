@@ -140,7 +140,7 @@ const Checkout = () => {
       };
   
       const response = await axios.post(
-        "${import.meta.env.VITE_API_URL}/api/orders",
+        `${import.meta.env.VITE_API_URL}/api/orders`,
         orderData,
         getAuthHeader()
       );

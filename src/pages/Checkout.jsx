@@ -193,7 +193,10 @@ const Checkout = () => {
             name: item.name.substring(0, 127),
             unit_price: item.price, // Precio original sin descuento
             quantity: item.quantity,
-            discount: item.discount || 0
+            discount: item.discount || 0,
+            color: item.color || null,    // <-- Campo requerido para more_details
+            size: item.size || null,       // <-- Campo requerido para more_details
+            image: item.image,       // Imagen del producto (puede ser null o undefined)
           };
         })
       };

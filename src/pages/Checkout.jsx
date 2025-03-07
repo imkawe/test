@@ -102,6 +102,7 @@ const Checkout = () => {
     const fetchAddresses = async () => {
       try {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/addresses`, getAuthHeader());
+        console.log("Datos actualizados:", data.data);
         setAddresses(data.data.map(transformAddress));
       } catch (error) {
         toast.error("Error cargando direcciones");
@@ -109,9 +110,9 @@ const Checkout = () => {
         setLoading(false);
       }
     };
-
-    user && fetchAddresses();
-  }, [user]);
+  
+    if (user) fetchAddresses();
+  }, [user, addresses]); // Agrega 'addresses' como dependencia
 
   // Crear orden en efectivo
   const handleCreateOrder = async () => {
@@ -261,10 +262,12 @@ const Checkout = () => {
       setAddresses(prev => {
         const transformed = transformAddress(data.data);
         return selectedAddress 
-          ? prev.map(a => a.id === transformed.id ? transformed : a)
-          : [transformed, ...prev];
+          ? prev.map(a => (a.id === transformed.id ? transformed : a))
+          : [...prev, transformed]; // Se coloca al final para que no se "desaparezca"
       });
-  
+
+      
+
       toast.success(selectedAddress ? "Dirección actualizada" : "Dirección creada");
       setActiveModal(null);
     } catch (error) {

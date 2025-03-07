@@ -45,12 +45,14 @@ const Header = ({ onSearch }) => {
   }, []);
 
   const logout = () => {
+ 
     sessionStorage.clear();
     setUser(null);
     setCart([]); // Asumiendo que tienes un estado `cart` y una función `setCart` para manejarlo
     navigate("/");
+    toast.success("Has cerrado sesión correctamente");
   };
-
+  
   // Calcular total de items
   const cartItemsCount = cart.reduce(
     (total, item) => total + (item.quantity || 0),
@@ -191,7 +193,7 @@ const Header = ({ onSearch }) => {
               className="flex items-center gap-2 relative group"
             >
               <img
-                src={user.avatar || "/default-profile.png"}
+                src={user.avatar || `${window.location.origin}/img1.png`}
                 alt="Profile"
                 className="h-8 w-8 rounded-full object-cover border-2 border-gray-200"
               />

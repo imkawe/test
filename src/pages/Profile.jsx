@@ -40,7 +40,7 @@ const Profile = () => {
     const fetchAddresses = async () => {
       try {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/addresses`, getAuthHeader());
-        console.log("Datos recibidos del backend:", data.data); // Verifica la estructura de los datos
+        console.log("Datos actualizados:", data.data);
         setAddresses(data.data.map(transformAddress));
       } catch (error) {
         toast.error("Error cargando direcciones");
@@ -48,9 +48,10 @@ const Profile = () => {
         setLoading(false);
       }
     };
-
-    user && fetchAddresses();
-  }, [user]);
+  
+    if (user) fetchAddresses();
+  }, [user, addresses]); // Agrega 'addresses' como dependencia
+  
 
   const handleDeleteAddress = async () => {
     try {
@@ -105,9 +106,11 @@ const Profile = () => {
       setAddresses(prev => {
         const transformed = transformAddress(data.data);
         return selectedAddress 
-          ? prev.map(a => a.id === transformed.id ? transformed : a)
-          : [transformed, ...prev];
+          ? prev.map(a => (a.id === transformed.id ? transformed : a))
+          : [...prev, transformed]; // Se coloca al final para que no se "desaparezca"
       });
+
+      
 
       toast.success(selectedAddress ? "Dirección actualizada" : "Dirección creada");
       setActiveModal(null);
@@ -145,10 +148,10 @@ const Profile = () => {
         <section className="bg-white p-6 rounded-xl shadow-lg">
           <div className="text-center">
             <img 
-              src={user.avatar || "/img1.png"} 
+              src={user.avatar || `${window.location.origin}/img1.png`} 
               alt="Avatar"
               className="w-32 h-32 rounded-full border-4 border-gray-100 mx-auto mb-4"
-              onError={(e) => e.target.src = "/img1.png"}
+              onError={(e) => e.target.src = `${window.location.origin}/img1.png`}
             />
             <h2 className="text-xl font-semibold">{user.name}</h2>
             <p className="text-gray-600 mt-2">{user.email}</p>

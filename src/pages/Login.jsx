@@ -51,7 +51,7 @@ const Login = () => {
           isLoggedIn: true, 
           userData: {
             ...data.user,
-            avatar: data.user.avatar || "/img1.png"
+            avatar: data.user.avatar || `${window.location.origin}/img1.png`
           }
         });
 

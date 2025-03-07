@@ -1,158 +1,136 @@
-import React from "react";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
 
 const AddressForm = ({ initialValues, onSubmit, onCancel }) => {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm({
-    defaultValues: initialValues || {
-      isOtherPerson: false,
-      recipientName: "",
-    },
+  const [formData, setFormData] = useState({
+    firstName: initialValues?.firstName || "",
+    lastName: initialValues?.lastName || "",
+    addressLine: initialValues?.addressLine || "",
+    city: initialValues?.city || "",
+    state: initialValues?.state || "",
+    pincode: initialValues?.pincode || "",
+    country: initialValues?.country || "",
+    mobile: initialValues?.mobile || "",
   });
 
-  const isOtherPerson = watch("isOtherPerson");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-xl mx-auto p-5 bg-white rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-semibold text-gray-800">
-          {initialValues ? "Editar Dirección" : "Nueva Dirección"}
-        </h3>
-        <button
-          onClick={onCancel}
-          className="text-gray-500 hover:text-gray-700 transition-colors"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div className="mb-4">
-        <label className="flex items-center">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Nombre</label>
           <input
-            type="checkbox"
-            {...register("isOtherPerson")}
-            className="w-4 h-4 text-blue-600 rounded border-gray-300"
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            required
           />
-          <span className="ml-2 text-gray-700">¿Es para otra persona?</span>
-        </label>
-      </div>
-
-      {isOtherPerson && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre del Destinatario
-          </label>
-          <input
-            {...register("recipientName", { required: "Este campo es requerido" })}
-            className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Nombre completo del receptor"
-          />
-          {errors.recipientName && (
-            <p className="text-red-500 text-sm mt-1">{errors.recipientName.message}</p>
-          )}
         </div>
-      )}
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Dirección Completa
-        </label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Apellido</label>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            required
+          />
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Dirección</label>
         <input
-          {...register("addressLine", { required: "Este campo es requerido" })}
-          className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Calle, número, colonia"
+          type="text"
+          name="addressLine"
+          value={formData.addressLine}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          required
         />
-        {errors.addressLine && (
-          <p className="text-red-500 text-sm mt-1">{errors.addressLine.message}</p>
-        )}
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+          <label className="block text-sm font-medium text-gray-700">Ciudad</label>
           <input
-            {...register("city", { required: "Este campo es requerido" })}
-            className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Ciudad"
-          />
-          {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city.message}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-          <input
-            {...register("state")}
-            className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Estado"
+            type="text"
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            required
           />
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Código Postal</label>
+          <label className="block text-sm font-medium text-gray-700">Estado</label>
           <input
-            {...register("pincode", {
-              required: "Este campo es requerido",
-              pattern: {
-                value: /^\d{5}$/,
-                message: "Código postal inválido"
-              }
-            })}
-            className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Código Postal"
+            type="text"
+            name="state"
+            value={formData.state}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            required
           />
-          {errors.pincode && <p className="text-red-500 text-sm mt-1">{errors.pincode.message}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">País</label>
-          <input
-            {...register("country", { required: "Este campo es requerido" })}
-            className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-            placeholder="País"
-          />
-          {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>}
         </div>
       </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Teléfono de Contacto
-        </label>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Código Postal</label>
+          <input
+            type="text"
+            name="pincode"
+            value={formData.pincode}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">País</label>
+          <input
+            type="text"
+            name="country"
+            value={formData.country}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            required
+          />
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Teléfono</label>
         <input
-          {...register("mobile", {
-            required: "Este campo es requerido",
-            pattern: {
-              value: /^\d{10}$/,
-              message: "Número inválido (10 dígitos)"
-            }
-          })}
-          className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Número de 10 dígitos"
+          type="text"
+          name="mobile"
+          value={formData.mobile}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+          required
         />
-        {errors.mobile && <p className="text-red-500 text-sm mt-1">{errors.mobile.message}</p>}
       </div>
-
-      <div className="flex gap-3">
+      <div className="flex justify-end gap-4">
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+          className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="flex-1 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          className="px-4 py-2 bg-emerald-500 text-white rounded-md hover:bg-emerald-600"
         >
-          {initialValues ? "Actualizar" : "Guardar"}
+          Guardar
         </button>
       </div>
     </form>

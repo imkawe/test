@@ -57,7 +57,7 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg">
+    <div className="max-w-md mx-auto h-full p-6 bg-white rounded-2xl shadow-lg">
       <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Contáctanos</h2>
 
       {/* Mensaje de Éxito */}

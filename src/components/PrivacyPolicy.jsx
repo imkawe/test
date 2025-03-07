@@ -134,15 +134,13 @@ const PrivacyPolicyEcommerce = () => {
     href="/contact-us"
     className="text-blue-500 hover:underline font-medium text-lg"
   >
-    Contáctanos
+    <b>
+    <h1>Contáctanos</h1></b>
   </a>
 
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 pt-8 text-center text-gray-500">
-        <p>© 2023 Tu Empresa. Todos los derechos reservados.</p>
-      </footer>
+ 
     </div>
   );
 };

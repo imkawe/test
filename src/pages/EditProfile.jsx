@@ -56,7 +56,6 @@ const EditProfile = () => {
       const token = sessionStorage.getItem("authToken");
       const updateData = { 
         name, 
-       role,
         mobile: phone, // Cambiado a "mobile" para coincidir con el backend
         avatar: uploadedImageUrl 
       };
@@ -95,21 +94,7 @@ const EditProfile = () => {
           />
         </div>
 
-        <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Rol
-  </label>
-  <select
-    value={role}
-    onChange={(e) => setRole(e.target.value)}
-    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-  >
-    <option value="USER">Usuario</option>
-    <option value="ADMIN">Administrador</option>
-    {/* Agrega más roles si es necesario */}
-  </select>
-</div>
-
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Teléfono

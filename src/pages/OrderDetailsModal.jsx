@@ -83,32 +83,42 @@ const OrderDetailsModal = ({ order, onClose }) => {
 
         {/* Sección de Dirección */}
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
-          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <FaMapMarkerAlt className="text-blue-500" /> Dirección de Entrega
-          </h3>
-          {order.address ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="font-medium">Dirección:</p>
-                <p>{order.address?.address_line || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="font-medium">Ciudad/Estado:</p>
-                <p>{order.address?.city || 'N/A'}, {order.address?.state || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="font-medium">Código Postal:</p>
-                <p>{order.address?.pincode || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="font-medium">Teléfono:</p>
-                <p>{order.address?.mobile || 'N/A'}</p>
-              </div>
-            </div>
-          ) : (
-            <p className="text-red-500">Dirección no disponible</p>
-          )}
-        </div>
+  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+    <FaMapMarkerAlt className="text-blue-500" /> Dirección de Entrega con Nombre completo
+  </h3>
+  {order.address ? (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Nombre y Apellido */}
+      <div>
+        <p className="font-medium">Nombre:</p>
+
+        <p>{order.address.first_name || 'N/A'} {order.address.last_name || 'N/A'}</p>
+      </div>
+      {/* Dirección */}
+      <div>
+        <p className="font-medium">Dirección:</p>
+        <p>{order.address.address_line || 'N/A'}</p>
+      </div>
+      {/* Ciudad y Estado */}
+      <div>
+        <p className="font-medium">Ciudad/Estado/pais:</p>
+        <p>{order.address.city || 'N/A'}, {order.address.state || 'N/A'},{order.address.country || 'N/A'}</p>
+      </div>
+      {/* Código Postal */}
+      <div>
+        <p className="font-medium">Código Postal:</p>
+        <p>{order.address.pincode || 'N/A'}</p>
+      </div>
+      {/* Teléfono */}
+      <div>
+        <p className="font-medium">Teléfono:</p>
+        <p>{order.address.mobile || 'N/A'}</p>
+      </div>
+    </div>
+  ) : (
+    <p className="text-red-500">Dirección no disponible</p>
+  )}
+</div>
 
         {/* Estado del Pedido */}
         <div className={`p-4 rounded-lg mb-6 ${order.status === 'CANCELLED' ? 'bg-red-100' : order.status === 'COMPLETED' ? 'bg-green-100' : 'bg-yellow-100'}`}>          

@@ -11,13 +11,15 @@ const transformAddress = (address) => {
 
   return {
     id: address.id || null,
-    addressLine: (address.addressLine || '').trim(),
-    city: (address.city || '').trim(),
-    state: (address.state || '').trim(),
-    pincode: address.pincode?.toString() || '',
-    country: (address.country || '').trim(),
-    mobile: address.mobile?.toString() || '',
-    userId: address.userId || null
+    firstName: address.first_name || '', // Asegúrate de que el campo sea first_name
+    lastName: address.last_name || '',   // Asegúrate de que el campo sea last_name
+    addressLine: address.address_line || '', // Asegúrate de que el campo sea address_line
+    city: address.city || '',
+    state: address.state || '',
+    pincode: address.pincode || '',
+    country: address.country || '',
+    mobile: address.mobile || '',
+    userId: address.user_id || null
   };
 };
 
@@ -38,6 +40,7 @@ const Profile = () => {
     const fetchAddresses = async () => {
       try {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/addresses`, getAuthHeader());
+        console.log("Datos recibidos del backend:", data.data); // Verifica la estructura de los datos
         setAddresses(data.data.map(transformAddress));
       } catch (error) {
         toast.error("Error cargando direcciones");
@@ -64,7 +67,26 @@ const Profile = () => {
 
   const handleAddressSubmit = async (formData) => {
     try {
+      // Validar campos obligatorios
+      const requiredFields = [
+        { key: "firstName", name: "Nombre" },
+        { key: "lastName", name: "Apellido" },
+        { key: "addressLine", name: "Dirección" },
+        { key: "city", name: "Ciudad" },
+        { key: "pincode", name: "Código Postal" },
+        { key: "country", name: "País" },
+        { key: "mobile", name: "Teléfono" }
+      ];
+
+      const missingFields = requiredFields.filter(({ key }) => !formData[key]).map(({ name }) => name);
+      if (missingFields.length > 0) {
+        toast.error(`Faltan campos obligatorios: ${missingFields.join(", ")}`);
+        return;
+      }
+
       const payload = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
         address_line: formData.addressLine,
         city: formData.city,
         state: formData.state,
@@ -165,14 +187,15 @@ const Profile = () => {
               addresses.map(address => (
                 <div key={address.id} className="border rounded-xl p-4 relative hover:shadow-md transition-shadow">
                   <div className="pr-12">
-                    <h3 className="font-semibold">{address.addressLine}</h3>
+                    <h3 className="font-semibold">{address.firstName} {address.lastName}</h3>
+                    <p>{address.addressLine}</p>
                     <p className="text-gray-600">
                       {address.city}
                       {address.state && `, ${address.state}`}
                     </p>
                     <p className="text-gray-600">C.P. {address.pincode}</p>
                     <p className="text-gray-600">{address.country}</p>
-                    <p className="text-gray-600">Tel: {address.mobile}</p>
+                    <p className="text-gray-600">Tel: {parseInt(address.mobile)}</p>
                   </div>
                   <div className="absolute top-2 right-2 flex gap-2">
                     <button

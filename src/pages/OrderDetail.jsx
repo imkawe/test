@@ -57,8 +57,8 @@ const OrderDetail = ({ order, onClose }) => {
         <button className="absolute top-3 right-3 text-gray-500 hover:text-gray-700" onClick={onClose}>✕</button>
 
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-blue-600">Detalles Completo del Pedido #{order.order_id}</h2>
-          <p className="text-sm text-gray-500 mt-2">{formatDate(order.created_at)}</p>
+        <h2 className="text-2xl font-bold text-blue-600">Detalles Completo del Pedido #{order.order_id}</h2>
+        <p className="text-sm text-gray-500 mt-2">{formatDate(order.created_at)}</p>
         </div>
 
  

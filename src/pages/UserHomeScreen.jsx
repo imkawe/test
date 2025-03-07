@@ -20,7 +20,7 @@ function UserHomeScreen() {
     const redirectTimer = setTimeout(() => {
       navigate("/");
       window.location.reload(); // Recargar la página después de redirigir
-    }, 1000);
+    }, 3000);
 
     // Obtener detalles del usuario
     const fetchUserDetails = async () => {
@@ -49,36 +49,17 @@ function UserHomeScreen() {
   }, [navigate]);
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center", color: "#2c3e50" }}>
-        Welcome to User Home Screen
-      </h2>
-      
-      {userData ? (
-        <div style={{
-          marginTop: "30px",
-          padding: "20px",
-          borderRadius: "10px",
-          boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
-        }}>
-          <h3 style={{ color: "#3498db" }}>User Details</h3>
-          <p><strong>Name:</strong> {userData.name}</p>
-          <p><strong>Email:</strong> {userData.email}</p>
-        </div>
-      ) : (
-        <p style={{ textAlign: "center", marginTop: "20px" }}>
-          Loading user details...
-        </p>
-      )}
-      
-      <p style={{
-        textAlign: "center",
-        marginTop: "20px",
-        color: "#e74c3c",
-        fontWeight: "bold"
-      }}>
-        Redirecting to home page in 2 seconds...
-      </p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full text-center">
+        <h2 className="text-2xl font-bold text-gray-800">Bienvenido</h2>
+        <p className="mt-2 text-gray-600">Has iniciado sesión con éxito.</p>
+        {userData && (
+          <div className="mt-4 p-4 bg-blue-100 text-blue-700 rounded-lg">
+            <p><strong>Nombre:</strong> {userData.name}</p>
+            <p><strong>Email:</strong> {userData.email}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

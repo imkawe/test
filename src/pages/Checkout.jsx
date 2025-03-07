@@ -3,7 +3,7 @@ import { useUser } from "../context/UserContext";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import AddressForm from "../pages/AddressForm";
-import { FaEdit, FaTrash, FaPlus, FaMapMarkerAlt, FaMoneyBillWave, FaCreditCard, FaShoppingBag, FaExclamationCircle } from "react-icons/fa"; // 🔹 Agrega FaExclamationCircle aquí
+import { FaEdit, FaTrash, FaPlus, FaMapMarkerAlt, FaMoneyBillWave, FaCreditCard, FaShoppingBag, FaExclamationCircle } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
@@ -14,15 +14,18 @@ const transformAddress = (address) => {
 
   return {
     id: address.id || null,
-    addressLine: (address.addressLine || '').trim(),
-    city: (address.city || '').trim(),
-    state: (address.state || '').trim(),
-    pincode: address.pincode?.toString() || '',
-    country: (address.country || '').trim(),
-    mobile: address.mobile?.toString() || '',
-    userId: address.userId || null
+    firstName: address.first_name || '', 
+    lastName: address.last_name || '',  
+    addressLine: address.address_line || '',
+    city: address.city || '',
+    state: address.state || '',
+    pincode: address.pincode || '',
+    country: address.country || '',
+    mobile: address.mobile || '',
+    userId: address.user_id || null
   };
 };
+
 
 // Función para parsear la imagen
 const parseImage = (image) => {
@@ -45,8 +48,7 @@ const Checkout = () => {
   const [addressToDelete, setAddressToDelete] = useState(null);
   const [localCart, setLocalCart] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
- 
- 
+
   const [cartSummary, setCartSummary] = useState({
     totalOriginal: 0,
     totalDiscounted: 0,
@@ -117,9 +119,9 @@ const Checkout = () => {
       toast.error("Por favor, selecciona una dirección de entrega.");
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const orderData = {
         userId: user.id,
@@ -130,20 +132,20 @@ const Checkout = () => {
           quantity: item.quantity,
           unit_price: parseFloat(item.price),
           discount: item.discount || 0,
-          color: item.color,       // Color seleccionado (puede ser null o undefined)
-          size: item.size,         // Tamaño seleccionado (puede ser null o undefined)
-          image: item.image,       // Imagen del producto (puede ser null o undefined)
+          color: item.color,
+          size: item.size,
+          image: item.image,
         })),
         subTotalAmt: cartSummary.totalOriginal,
         totalAmt: cartSummary.totalDiscounted,
       };
-  
+
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/orders`,
         orderData,
         getAuthHeader()
       );
-  
+
       if (response.data.success) {
         toast.success("Orden creada exitosamente.");
         sessionStorage.removeItem("cart");
@@ -161,15 +163,7 @@ const Checkout = () => {
   // Crear orden con PayPal
   const createPayPalOrder = async () => {
     try {
-      console.groupCollapsed('[FRONTEND] Iniciando orden PayPal');
-      console.log('Resumen del carrito:', JSON.stringify({
-        totalOriginal: cartSummary.totalOriginal,
-        totalDiscounted: cartSummary.totalDiscounted,
-        items: localCart.length
-      }, null, 2));
-
       if (!selectedAddressId) {
-        console.error('Dirección no seleccionada');
         toast.error("Selecciona una dirección de entrega");
         throw new Error("Dirección requerida");
       }
@@ -177,102 +171,36 @@ const Checkout = () => {
       const orderData = {
         amount: cartSummary.totalDiscounted.toFixed(2),
         delivery_address: selectedAddressId,
-        items: localCart.map(item => {
-          const itemDetails = {
-            productId: item.id,
-            originalPrice: item.price,
-            discount: item.discount,
-            calculatedPrice: (item.price * (1 - (item.discount || 0)/100)).toFixed(2),
-            quantity: item.quantity,
-            total: (item.price * (1 - (item.discount || 0)/100) * item.quantity).toFixed(2)
-          };
-          console.log('Item procesado:', itemDetails);
-          
-          return {
-            product_id: item.id,
-            name: item.name.substring(0, 127),
-            unit_price: item.price, // Precio original sin descuento
-            quantity: item.quantity,
-            discount: item.discount || 0,
-            color: item.color || null,    // <-- Campo requerido para more_details
-            size: item.size || null,       // <-- Campo requerido para more_details
-            image: item.image,       // Imagen del producto (puede ser null o undefined)
-          };
-        })
+        items: localCart.map(item => ({
+          product_id: item.id,
+          name: item.name.substring(0, 127),
+          unit_price: item.price,
+          quantity: item.quantity,
+          discount: item.discount || 0,
+          color: item.color || null,
+          size: item.size || null,
+          image: item.image,
+        }))
       };
 
-      console.log('Enviando al backend:', JSON.stringify(orderData, null, 2));
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/orders/paypal`,
         orderData,
         getAuthHeader()
       );
-      
-      console.log('Respuesta del backend:', response.data);
-      console.groupEnd();
-      return response.data.paypal.id;
 
+      return response.data.paypal.id;
     } catch (error) {
-      console.error('Error completo:', {
-        message: error.message,
-        response: error.response?.data
-      });
+      console.error('Error completo:', error);
       toast.error(error.response?.data?.message || "Error en PayPal");
       throw error;
     }
   };
-///
-const handleAddressSubmit = async (formData) => {
-  try {
-    const payload = {
-      address_line: formData.addressLine,
-      city: formData.city,
-      state: formData.state,
-      pincode: formData.pincode,
-      country: formData.country,
-      mobile: parseInt(formData.mobile.replace(/\D/g, '')),
-      user_id: user.id
-    };
 
-    const url = selectedAddress 
-      ? `${import.meta.env.VITE_API_URL}/api/addresses/${selectedAddress.id}`
-      : `${import.meta.env.VITE_API_URL}/api/addresses`;
-
-    const { data } = await axios[selectedAddress ? "put" : "post"](url, payload, getAuthHeader());
-    
-    setAddresses(prev => {
-      const transformed = transformAddress(data.data);
-      return selectedAddress 
-        ? prev.map(a => a.id === transformed.id ? transformed : a)
-        : [transformed, ...prev];
-    });
-
-    toast.success(selectedAddress ? "Dirección actualizada" : "Dirección creada");
-    setActiveModal(null);
-  } catch (error) {
-    toast.error(error.response?.data?.error || "Error en la operación");
-  }
-};
-//
-const handleDeleteAddress = async () => {
-  try {
-    await axios.delete(`${import.meta.env.VITE_API_URL}/api/addresses/${addressToDelete}`, getAuthHeader());
-    setAddresses(prev => prev.filter(a => a.id !== addressToDelete));
-    toast.success("Dirección eliminada correctamente");
-  } catch (error) {
-    toast.error(error.response?.data?.error || "Error eliminando dirección");
-  } finally {
-    setAddressToDelete(null);
-    setActiveModal(null);
-  }
-};
   // Manejar la aprobación del pago
   const onPayPalApprove = async (data, actions) => {
     try {
-      // 1. Capturar pago en PayPal
       await actions.order.capture();
-      
-      // 2. Confirmar pago en nuestro backend
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/orders/paypal/capture`,
         {
@@ -282,15 +210,80 @@ const handleDeleteAddress = async () => {
         getAuthHeader()
       );
 
-      // 3. Limpiar carrito y redirigir
       sessionStorage.removeItem("cart");
       clearCart();
       navigate("/my-orders");
       toast.success("¡Pago completado exitosamente!");
-
     } catch (error) {
       console.error("Error en pago PayPal:", error);
       toast.error("Error al procesar el pago");
+    }
+  };
+
+  // Manejar el envío del formulario de dirección
+  const handleAddressSubmit = async (formData) => {
+    try {
+      // Validar campos obligatorios
+      const requiredFields = [
+        { key: "firstName", name: "Nombre" },
+        { key: "lastName", name: "Apellido" },
+        { key: "addressLine", name: "Dirección" },
+        { key: "city", name: "Ciudad" },
+        { key: "pincode", name: "Código Postal" },
+        { key: "country", name: "País" },
+        { key: "mobile", name: "Teléfono" }
+      ];
+  
+      const missingFields = requiredFields.filter(({ key }) => !formData[key]).map(({ name }) => name);
+      if (missingFields.length > 0) {
+        toast.error(`Faltan campos obligatorios: ${missingFields.join(", ")}`);
+        return;
+      }
+  
+      const payload = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        address_line: formData.addressLine,
+        city: formData.city,
+        state: formData.state,
+        pincode: formData.pincode,
+        country: formData.country,
+        mobile: parseInt(formData.mobile.replace(/\D/g, '')),
+        user_id: user.id
+      };
+  
+      const url = selectedAddress 
+        ? `${import.meta.env.VITE_API_URL}/api/addresses/${selectedAddress.id}`
+        : `${import.meta.env.VITE_API_URL}/api/addresses`;
+  
+      const { data } = await axios[selectedAddress ? "put" : "post"](url, payload, getAuthHeader());
+      
+      setAddresses(prev => {
+        const transformed = transformAddress(data.data);
+        return selectedAddress 
+          ? prev.map(a => a.id === transformed.id ? transformed : a)
+          : [transformed, ...prev];
+      });
+  
+      toast.success(selectedAddress ? "Dirección actualizada" : "Dirección creada");
+      setActiveModal(null);
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error en la operación");
+    }
+  };
+
+
+  // Manejar la eliminación de una dirección
+  const handleDeleteAddress = async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/addresses/${addressToDelete}`, getAuthHeader());
+      setAddresses(prev => prev.filter(a => a.id !== addressToDelete));
+      toast.success("Dirección eliminada correctamente");
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error eliminando dirección");
+    } finally {
+      setAddressToDelete(null);
+      setActiveModal(null);
     }
   };
 
@@ -307,54 +300,78 @@ const handleDeleteAddress = async () => {
         </h1>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Sección de Dirección de Entrega */}
-         {/* Sección Direcciones */}
-               <section className="bg-white p-6 rounded-xl shadow-lg">
-                 <div className="flex justify-between items-center mb-6">
-                   <h2 className="text-xl font-bold flex items-center gap-2">
-                     <FaMapMarkerAlt /> Mis Direcciones
-                   </h2>
-                   <button 
-                     onClick={() => {
-                       setSelectedAddress(null);
-                       setActiveModal('address');
-                     }}
-                     className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center transition-colors"
-                   >
-                     <FaPlus className="mr-2" /> Nueva Dirección
-                   </button>
-                 </div>
-       
-                 <div className="grid gap-4">
-                   {addresses.length === 0 ? (
-                     <p className="text-gray-500 text-center py-4">No hay direcciones registradas</p>
-                   ) : (
-                    addresses.map((address) => (
-                      <div key={address.id} className="border p-4 rounded-lg flex items-center justify-between">
-                        {/* Detalles de la dirección */}
-                        <div>
-                          <p>{address.addressLine}</p>
-                          <p>
-                            {address.city}, {address.state && `${address.state},`} C.P. {address.pincode}
-                          </p>
-                          <p>{address.country}</p>
-                          <p>Tel: {address.mobile}</p>
-                        </div>
-                
-                        {/* Radio button para seleccionar la dirección */}
-                        <input
-                          type="radio"
-                          name="address"
-                          value={address.id}
-                          checked={selectedAddressId === address.id}
-                          onChange={() => setSelectedAddressId(address.id)}
-                          className="form-radio h-5 w-5 text-indigo-600"
-                        />
-                      </div>
-                    ))
-                  )}
-                 </div>
-               </section>
+          {/* Sección de Direcciones */}
+          <section className="bg-white p-6 rounded-xl shadow-lg">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <FaMapMarkerAlt /> Mis Direcciones
+              </h2>
+              <button 
+                onClick={() => {
+                  setSelectedAddress(null);
+                  setActiveModal('address');
+                }}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center transition-colors"
+              >
+                <FaPlus className="mr-2" /> Nueva Dirección
+              </button>
+            </div>
+
+            <div className="grid gap-4">
+              {addresses.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No hay direcciones registradas</p>
+              ) : (
+                addresses.map((address) => (
+                  <div
+                    key={address.id}
+                    className={`border p-4 rounded-lg flex items-center justify-between ${
+                      selectedAddressId === address.id ? "border-2 border-emerald-500 bg-emerald-50" : "border-gray-200"
+                    }`}
+                  >
+<div>
+<p><h3 className="font-semibold">{address.firstName} {address.lastName}</h3></p>
+      <p>{address.addressLine}</p>
+      <p>
+        {address.city}, {address.state && `${address.state},`} C.P. {address.pincode}
+      </p>
+      <p>{address.country}</p>
+      <p>Tel: {address.mobile}</p>
+    </div>
+
+    {/* Botones de Editar y Eliminar */}
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => {
+          setSelectedAddress(address);
+          setActiveModal('address');
+        }}
+        className="text-blue-500 hover:text-blue-700 transition-colors"
+      >
+        <FaEdit />
+      </button>
+      <button
+        onClick={() => {
+          setAddressToDelete(address.id);
+          setActiveModal('delete');
+        }}
+        className="text-red-500 hover:text-red-700 transition-colors"
+      >
+        <FaTrash />
+      </button>
+      <input
+        type="radio"
+        name="address"
+        value={address.id}
+        checked={selectedAddressId === address.id}
+        onChange={() => setSelectedAddressId(address.id)}
+        className="form-radio h-5 w-5 text-emerald-600"
+      />
+    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
 
           {/* Sección de Resumen del Carrito */}
           <section className="bg-white p-6 rounded-xl shadow-lg">
@@ -372,86 +389,28 @@ const handleDeleteAddress = async () => {
 
                   return (
                     <div key={`${item.id}-${item.color}-${item.size}`} className="flex items-center gap-4 p-4 border rounded-lg">
-                    <div className="w-20 h-20 flex-shrink-0">
-                      <img
-                        src={parseImage(item.image)}
-                        alt={item.name}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
+                      <div className="w-20 h-20 flex-shrink-0">
+                        <img
+                          src={parseImage(item.image)}
+                          alt={item.name}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{item.name}</h3>
+                        {item.color && <p className="text-gray-600">Color: {item.color}</p>}
+                        {item.size && <p className="text-gray-600">Tamaño: {item.size}</p>}
+                        <p className="text-gray-600">Cantidad: {item.quantity}</p>
+                        <p className="text-gray-600">Precio: ${discountedPrice.toFixed(2)} c/u</p>
+                        <p className="text-gray-600">Total: ${totalPrice.toFixed(2)}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{item.name}</h3>
-                      {item.color && ( // Mostrar color si está presente
-                        <p className="text-gray-600">Color: {item.color}</p>
-                      )}
-                      {item.size && ( // Mostrar tamaño si está presente
-                        <p className="text-gray-600">Tamaño: {item.size}</p>
-                      )}
-                      <p className="text-gray-600">Cantidad: {item.quantity}</p>
-                      <p className="text-gray-600">
-                        Precio: ${discountedPrice.toFixed(2)} c/u
-                      </p>
-                      <p className="text-gray-600">
-                        Total: ${totalPrice.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
                   );
                 })}
               </div>
             )}
           </section>
-          {activeModal && (
-        <>
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"/>
-          
-          {activeModal === 'delete' && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
-                <h3 className="text-lg font-bold mb-3">¿Eliminar dirección?</h3>
-                <p className="text-gray-600 mb-5">Esta acción no se puede deshacer</p>
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => setActiveModal(null)}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleDeleteAddress}
-                    className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors"
-                  >
-                    Confirmar
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {activeModal === 'address' && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">
-                    {selectedAddress ? "Editar Dirección" : "Nueva Dirección"}
-                  </h3>
-                  <button
-                    onClick={() => setActiveModal(null)}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <AddressForm
-                  initialValues={selectedAddress}
-                  onSubmit={handleAddressSubmit}
-                  onCancel={() => setActiveModal(null)}
-                />
-              </div>
-            </div>
-          )}
-        </>
-      )}
           {/* Sección de Método de Pago y Resumen */}
           <section className="bg-white p-6 rounded-xl shadow-lg">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -541,9 +500,61 @@ const handleDeleteAddress = async () => {
             </div>
           </section>
         </div>
+
+        {/* Modales */}
+        {activeModal && (
+          <>
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"/>
+            
+            {activeModal === 'delete' && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
+                  <h3 className="text-lg font-bold mb-3">¿Eliminar dirección?</h3>
+                  <p className="text-gray-600 mb-5">Esta acción no se puede deshacer</p>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => setActiveModal(null)}
+                      className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleDeleteAddress}
+                      className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors"
+                    >
+                      Confirmar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeModal === 'address' && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold">
+                      {selectedAddress ? "Editar Dirección" : "Nueva Dirección"}
+                    </h3>
+                    <button
+                      onClick={() => setActiveModal(null)}
+                      className="text-gray-500 hover:text-gray-700 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <AddressForm
+                    initialValues={selectedAddress}
+                    onSubmit={handleAddressSubmit}
+                    onCancel={() => setActiveModal(null)}
+                  />
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </PayPalScriptProvider>
-    
   );
 };
 

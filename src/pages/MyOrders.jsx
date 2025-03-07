@@ -25,12 +25,8 @@ const MyOrders = () => {
           if (order.payment_id && order.status === "COMPLETED") return true;
           return false;
         }).map(order => ({
-          ...order,
-          created_at: new Date(order.created_at).toLocaleDateString("es-ES", {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          })
+          ...order
+     
         })) || [];
 
         setOrders(filteredOrders);

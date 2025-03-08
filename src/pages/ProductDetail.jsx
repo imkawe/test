@@ -17,8 +17,10 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [variantImages, setVariantImages] = useState([]);
+  const [touchStartX, setTouchStartX] = useState(null); // Para el gesto táctil
   const imageContainer = useRef();
 
+  // Procesar imágenes
   const processImage = (image) => {
     if (Array.isArray(image)) return image;
     if (typeof image === 'string' && image.startsWith("[")) {
@@ -31,6 +33,7 @@ const ProductDetail = () => {
     return [image];
   };
 
+  // Parsear detalles del producto
   const parseDetails = () => {
     try {
       const details = product?.more_details 
@@ -65,6 +68,7 @@ const ProductDetail = () => {
     ? sizes.filter(size => inventory[selectedColor]?.[size] > 0)
     : sizes;
 
+  // Fetch del producto
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -87,6 +91,7 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id, navigate]);
 
+  // Actualizar imágenes al cambiar el color
   useEffect(() => {
     if (selectedColor && colorImages[selectedColor]) {
       setVariantImages(processImage(colorImages[selectedColor]));
@@ -96,6 +101,7 @@ const ProductDetail = () => {
     setImageIndex(0);
   }, [selectedColor, product]);
 
+  // Cargar el carrito desde sessionStorage
   useEffect(() => {
     const loadCart = () => {
       try {
@@ -110,6 +116,7 @@ const ProductDetail = () => {
     loadCart();
   }, []);
 
+  // Actualizar el carrito
   const updateCart = (newCart) => {
     const validCart = newCart.filter(item => 
       item?.id &&
@@ -123,6 +130,7 @@ const ProductDetail = () => {
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
+  // Calcular el stock disponible
   const getVariantStock = () => {
     if (selectedColor && selectedSize) {
       return inventory[selectedColor]?.[selectedSize] || 0;
@@ -145,10 +153,12 @@ const ProductDetail = () => {
 
   const remainingStock = currentStock - (cartItem?.quantity || 0);
 
+  // Calcular ahorros
   const calculateSavings = (quantity = 1) => {
     return (product?.price * (product.discount / 100) * quantity).toFixed(2);
   };
 
+  // Añadir al carrito
   const addToCart = () => {
     if (!user || !product) return;
     
@@ -189,6 +199,7 @@ const ProductDetail = () => {
     updateCart(newCart);
   };
 
+  // Eliminar del carrito
   const removeFromCart = () => {
     const existingIndex = cart.findIndex(item => 
       item.id === product?.id &&
@@ -208,6 +219,7 @@ const ProductDetail = () => {
     updateCart(newCart);
   };
 
+  // Scrolling horizontal con botones
   const handleScroll = (direction) => {
     imageContainer.current?.scrollBy({ 
       left: direction * 200, 
@@ -215,6 +227,7 @@ const ProductDetail = () => {
     });
   };
 
+  // Efecto hover en escritorio
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -227,6 +240,31 @@ const ProductDetail = () => {
 
   const handleMouseLeave = () => {
     setZoomStyle({ transform: 'scale(1)' });
+  };
+
+  // Gesto táctil para cambiar imágenes
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!touchStartX) return;
+    const touchEndX = e.touches[0].clientX;
+    const deltaX = touchEndX - touchStartX;
+
+    if (deltaX > 50) {
+      // Deslizamiento hacia la derecha
+      setImageIndex((prev) => (prev > 0 ? prev - 1 : imagesToShow.length - 1));
+      setTouchStartX(null);
+    } else if (deltaX < -50) {
+      // Deslizamiento hacia la izquierda
+      setImageIndex((prev) => (prev < imagesToShow.length - 1 ? prev + 1 : 0));
+      setTouchStartX(null);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStartX(null);
   };
 
   if (!product) return (
@@ -252,6 +290,9 @@ const ProductDetail = () => {
               className="h-96 relative transition-transform duration-300"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               <img
                 src={mainImage}
@@ -507,7 +548,6 @@ const ProductDetail = () => {
             <div>
               <h3 className="font-bold text-lg text-gray-900 mb-2">
               Productos probados, calidad garantizada.
-
               </h3>
               <p className="text-gray-600">
           una amplia selección de artículos en cuidado personal, tecnología y mucho más.

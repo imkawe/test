@@ -20,8 +20,12 @@ const Home = ({ searchQuery = "" }) => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
         const data = await response.json();
-        setProducts(data);
-        setFilteredProducts(data); // Inicialmente, mostrar todos los productos
+  
+        // Ordenar productos por created_at (más recientes primero)
+        const sortedProducts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  
+        setProducts(sortedProducts);
+        setFilteredProducts(sortedProducts); // Mostrar productos ordenados
       } catch (error) {
         console.error("Error al obtener productos:", error);
       }
@@ -143,63 +147,62 @@ const Home = ({ searchQuery = "" }) => {
 
               {/* Contenido inferior */}
               <div className="flex flex-col flex-grow">
-                <h3 className="font-semibold text-base sm:text-lg cursor-pointer hover:text-blue-600 line-clamp-2 text-left mb-2 sm:mb-3">
-                  {product.name}
-                </h3>
+  <h3 className="font-semibold text-base sm:text-lg cursor-pointer hover:text-blue-600 line-clamp-2 text-left mb-2 sm:mb-3">
+    {product.name}
+  </h3>
 
-                <div className="mt-auto">
-                  <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
-                    {/* Precios */}
-                    <div className="flex flex-col">
-                      {product.discount > 0 && (
-                        <span className="text-gray-400 line-through text-sm sm:text-base">
-                          ${product.price.toFixed(2)}
-                        </span>
-                      )}
-                      <span
-                        className={`text-lg sm:text-xl font-bold ${
-                          product.discount > 0 ? "text-red-500" : "text-gray-900"
-                        }`}
-                      >
-                        ${discountedPrice.toFixed(2)}
-                      </span>
-                    </div>
-
-                    {/* Botones */}
-{user && (
-  <div className="w-full sm:w-auto">
-    {cartItem ? (
-      <div className="flex items-center justify-between sm:justify-start gap-2">
-        <button
-          onClick={() => removeFromCart(product.id)}
-          className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
+  <div className="mt-auto">
+    <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
+      {/* Precios */}
+      <div className="flex flex-col">
+        {product.discount > 0 && (
+          <span className="text-gray-400 line-through text-sm sm:text-base">
+            ${product.price.toFixed(2)}
+          </span>
+        )}
+        <span
+          className="text-lg sm:text-xl font-bold"
+          style={{ color: "rgb(0, 0, 0)" }} // Aplicar el color personalizado
         >
-          <FaMinus size={14} />
-        </button>
-        <span className="font-bold text-base sm:text-lg">{cartItem.quantity}</span>
-        <button
-          onClick={() => addToCart(product)}
-          className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition"
-          disabled={product.stock === 0}
-        >
-          <FaPlus size={14} />
-        </button>
+          ${discountedPrice.toFixed(2)}
+        </span>
       </div>
-    ) : (
-      <button
-        onClick={() => addToCart(product)}
-        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-1 text-sm sm:text-base"
-        disabled={product.stock === 0}
-      >
-        <FaPlus className="text-xs sm:text-sm" />
-        {product.stock > 0 ? "Añadir" : "Agotado"}
-      </button>
-    )}
+
+      {/* Botones */}
+      {user && (
+        <div className="w-full sm:w-auto">
+          {cartItem ? (
+            <div className="flex items-center justify-between sm:justify-start gap-2">
+              <button
+                onClick={() => removeFromCart(product.id)}
+                className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
+              >
+                <FaMinus size={14} />
+              </button>
+              <span className="font-bold text-base sm:text-lg">{cartItem.quantity}</span>
+              <button
+                onClick={() => addToCart(product)}
+                className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition"
+                disabled={product.stock === 0}
+              >
+                <FaPlus size={14} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => addToCart(product)}
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-1 text-sm sm:text-base"
+              disabled={product.stock === 0}
+            >
+              <FaPlus className="text-xs sm:text-sm" />
+              {product.stock > 0 ? "Añadir" : "Agotado"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   </div>
-)}
-                  </div>
-                </div>
-              </div>
+</div>
             </div>
           );
         })}

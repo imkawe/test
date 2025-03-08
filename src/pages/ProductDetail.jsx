@@ -506,11 +506,11 @@ const ProductDetail = () => {
             <img src={image3} alt="Amplia variedad" className="w-16 h-16 mb-4" />
             <div>
               <h3 className="font-bold text-lg text-gray-900 mb-2">
-              Nuestros productos pasan rigurosas pruebas de calidad antes de llegar a ti.
+              Productos probados, calidad garantizada.
 
               </h3>
               <p className="text-gray-600">
-              Explora una amplia selección de artículos en cuidado personal, hogar, tecnología y mucho más.
+          una amplia selección de artículos en cuidado personal, tecnología y mucho más.
               ¡Encuentra lo que necesitas con la garantía de calidad que nos respalda!
               </p>
             </div>

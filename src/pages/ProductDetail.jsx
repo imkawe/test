@@ -310,61 +310,61 @@ const ProductDetail = () => {
           </div>
     
           {imagesToShow.length > 1 && (
-  <div className="relative">
-    <div className="flex justify-center gap-2 mb-3">
-      {imagesToShow.map((_, index) => (
-        <button
-          key={`indicator-${index}`}
-          className={`h-2 w-8 rounded-full transition-all ${
-            index === imageIndex ? 'bg-emerald-600' : 'bg-gray-200 hover:bg-gray-300'
-          }`}
-          onClick={() => setImageIndex(index)}
-          aria-label={`Ver imagen ${index + 1}`}
-        />
-      ))}
-    </div>
-
-    <div className="relative group">
-      <div
-        ref={imageContainer}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pb-4"
-      >
-        {imagesToShow.map((img, index) => (
-          <button
-            key={img + index}
-            onClick={() => setImageIndex(index)}
-            className={`flex-shrink-0 w-1/8 max-w-[80px] h-16 transition-all duration-300 ${
-              index === imageIndex 
-                ? "ring-2 ring-emerald-500 scale-105 shadow-md" 
-                : "opacity-75 hover:opacity-100 hover:ring-1 ring-gray-200"
-            } rounded-lg overflow-hidden`}
-          >
-            <img
-              src={img}
-              alt={`Miniatura ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
-          </button>
-        ))}
-      </div>
-
-      <div className="absolute inset-0 flex items-center justify-between pointer-events-none">
-        <button
-          onClick={() => handleScroll(-1)}
-          className="p-2 bg-white/90 backdrop-blur-sm shadow-md rounded-full pointer-events-auto transform -translate-x-2 hover:-translate-x-3 transition-all hover:bg-emerald-50"
-        >
-          <FaAngleLeft className="text-lg text-gray-700" />
-        </button>
-        <button
-          onClick={() => handleScroll(1)}
-          className="p-2 bg-white/90 backdrop-blur-sm shadow-md rounded-full pointer-events-auto transform translate-x-2 hover:translate-x-3 transition-all hover:bg-emerald-50"
-        >
-          <FaAngleRight className="text-lg text-gray-700" />
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            <div className="relative">
+              <div className="flex justify-center gap-2 mb-3">
+                {imagesToShow.map((_, index) => (
+                  <button
+                    key={`indicator-${index}`}
+                    className={`h-2 w-8 rounded-full transition-all ${
+                      index === imageIndex ? 'bg-emerald-600' : 'bg-gray-200 hover:bg-gray-300'
+                    }`}
+                    onClick={() => setImageIndex(index)}
+                    aria-label={`Ver imagen ${index + 1}`}
+                  />
+                ))}
+              </div>
+    
+              <div className="relative group">
+                <div
+                  ref={imageContainer}
+                  className="flex gap-3 overflow-x-auto scrollbar-hide pb-4"
+                >
+                  {imagesToShow.map((img, index) => (
+                    <button
+                      key={img + index}
+                      onClick={() => setImageIndex(index)}
+                      className={`flex-shrink-0 w-16 h-16 transition-all duration-300 ${
+                        index === imageIndex 
+                          ? "ring-2 ring-emerald-500 scale-105 shadow-md" 
+                          : "opacity-75 hover:opacity-100 hover:ring-1 ring-gray-200"
+                      } rounded-lg overflow-hidden`}
+                    >
+                      <img
+                        src={img}
+                        alt={`Miniatura ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+    
+                <div className="absolute inset-0 flex items-center justify-between pointer-events-none">
+                  <button
+                    onClick={() => handleScroll(-1)}
+                    className="p-2 bg-white/90 backdrop-blur-sm shadow-md rounded-full pointer-events-auto transform -translate-x-2 hover:-translate-x-3 transition-all hover:bg-emerald-50"
+                  >
+                    <FaAngleLeft className="text-lg text-gray-700" />
+                  </button>
+                  <button
+                    onClick={() => handleScroll(1)}
+                    className="p-2 bg-white/90 backdrop-blur-sm shadow-md rounded-full pointer-events-auto transform translate-x-2 hover:translate-x-3 transition-all hover:bg-emerald-50"
+                  >
+                    <FaAngleRight className="text-lg text-gray-700" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Detalles del Producto */}

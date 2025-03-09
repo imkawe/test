@@ -134,62 +134,64 @@ const OrderDetailsModal = ({ order, onClose }) => {
             <FaBox className="text-green-500" /> Productos Adquiridos
           </h3>
           <div className="space-y-4">
-            {order.items.map((item, index) => {
-              const images = Array.isArray(item.image) ? item.image : JSON.parse(item.image || "[]");
-              const discountDetails = calculateDiscount(item);
-              const moreDetails = item.more_details || {};
+          {order.items.map((item, index) => {
+  // Extraer las imágenes del producto
+  const images = Array.isArray(item.image) ? item.image : JSON.parse(item.image || "[]");
+  const firstImage = images[0]; // Obtener la primera imagen
 
-              return (
-                <div key={index} className="border rounded-lg p-4">
-                  {/* Imágenes del Producto */}
-                  <div className="flex gap-4 mb-3 flex-wrap">
-                    {images.map((img, imgIndex) => (
-                      <img
-                        key={imgIndex}
-                        src={img}
-                        alt={item.name}
-                        className="w-20 h-20 object-cover rounded border"
-                      />
-                    ))}
-                  </div>
+  const discountDetails = calculateDiscount(item);
+  const moreDetails = item.more_details || {};
 
-                  {/* Detalles Principales */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                      <p className="font-medium">Producto:</p>
-                      <p className="font-semibold">{item.name}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Precio Unitario:</p>
-                      <p>${parseFloat(item.unit_price).toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Cantidad:</p>
-                      <p>{item.quantity}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Total:</p>
-                      <p className="text-green-600 font-bold">${item.total_price.toFixed(2)}</p>
-                    </div>
-                  </div>
+  return (
+    <div key={index} className="border rounded-lg p-4">
+      {/* Mostrar solo la primera imagen */}
+      {firstImage && (
+        <div className="mb-3">
+          <img
+            src={firstImage}
+            alt={item.name}
+            className="w-20 h-20 object-cover rounded border"
+          />
+        </div>
+      )}
 
-                  {/* Detalles Específicos */}
-                  {moreDetails && Object.keys(moreDetails).length > 0 && renderDetails(moreDetails)}
+      {/* Detalles Principales */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div>
+          <p className="font-medium">Producto:</p>
+          <p className="font-semibold">{item.name}</p>
+        </div>
+        <div>
+          <p className="font-medium">Precio Unitario:</p>
+          <p>${parseFloat(item.unit_price).toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="font-medium">Cantidad:</p>
+          <p>{item.quantity}</p>
+        </div>
+        <div>
+          <p className="font-medium">Total:</p>
+          <p className="text-green-600 font-bold">${item.total_price.toFixed(2)}</p>
+        </div>
+      </div>
 
-                  {/* Descuentos */}
-                  {item.discount > 0 && (
-                    <div className="mt-4 bg-blue-50 p-3 rounded-lg">
-                      <p className="font-semibold text-blue-800">
-                        Descuento aplicado: {discountDetails.percentage}% 
-                        <span className="block text-sm font-normal">
-                          (Ahorro: ${discountDetails.amount.toFixed(2)})
-                        </span>
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+      {/* Detalles Específicos */}
+      {moreDetails && Object.keys(moreDetails).length > 0 && renderDetails(moreDetails)}
+
+      {/* Descuentos */}
+      {item.discount > 0 && (
+        <div className="mt-4 bg-blue-50 p-3 rounded-lg">
+          <p className="font-semibold text-blue-800">
+            Descuento aplicado: {discountDetails.percentage}% 
+            <span className="block text-sm font-normal">
+              (Ahorro: ${discountDetails.amount.toFixed(2)})
+            </span>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+})}
           </div>
         </div>
 

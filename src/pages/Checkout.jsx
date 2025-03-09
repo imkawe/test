@@ -421,17 +421,7 @@ const Checkout = () => {
             </h2>
 
             <div className="space-y-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="cash"
-                  checked={paymentMethod === "cash"}
-                  onChange={() => setPaymentMethod("cash")}
-                  className="form-radio h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                />
-                <span className="ml-2">Pago en Efectivo</span>
-              </label>
+   
 
               <label className="inline-flex items-center">
                 <input
@@ -493,11 +483,8 @@ const Checkout = () => {
                 )
               ) : (
                 <button
-                  onClick={handleCreateOrder}
-                  disabled={loading || !selectedAddressId}
-                  className="mt-6 w-full flex items-center justify-center gap-2 py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-colors shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  {loading ? "Procesando..." : "Confirmar Orden"}
+              >
+                 
                 </button>
               )}
             </div>

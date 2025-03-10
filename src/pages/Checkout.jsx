@@ -180,6 +180,7 @@ const Checkout = () => {
           discount: item.discount || 0,
           color: item.color || null,
           size: item.size || null,
+          bundle: item.bundle || null, 
           image: item.image,
         }))
       };
@@ -403,6 +404,7 @@ const Checkout = () => {
                         <h3 className="font-semibold">{item.name}</h3>
                         {item.color && <p className="text-gray-600">Color: {item.color}</p>}
                         {item.size && <p className="text-gray-600">Tamaño: {item.size}</p>}
+                        {item.bundle && <p className="text-gray-600">Bundle: {item.bundle}</p>}
                         <p className="text-gray-600">Cantidad: {item.quantity}</p>
                         <p className="text-gray-600">Precio: ${discountedPrice.toFixed(2)} c/u</p>
                         <p className="text-gray-600">Total: ${totalPrice.toFixed(2)}</p>

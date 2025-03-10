@@ -16,13 +16,14 @@ const Cart = () => {
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  const changeQuantity = (itemId, color, size, delta) => {
+  const changeQuantity = (itemId, color, size, bundle, delta) => {
     const newCart = cart
       .map(item => {
         if (
           item.id === itemId &&
           item.color === color &&
-          item.size === size
+          item.size === size &&
+          item.bundle === bundle // Verificar también el bundle
         ) {
           return { ...item, quantity: Math.max(0, item.quantity + delta) };
         }
@@ -78,7 +79,7 @@ const Cart = () => {
                 
                 return (
                   <div 
-                    key={`${item.id}-${item.color}-${item.size}`}
+                    key={`${item.id}-${item.color}-${item.size}-${item.bundle}`}
                     className="flex flex-col md:flex-row items-center gap-6 p-4 bg-white rounded-xl border border-gray-100 shadow-sm"
                   >
                     <div className="w-32 h-32 flex-shrink-0 bg-white p-2 border rounded-lg">
@@ -110,6 +111,11 @@ const Cart = () => {
                             Talla: {item.size}
                           </span>
                         )}
+                        {item.bundle && (
+                          <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                            Bundle: {item.bundle}
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-2 flex-wrap justify-center md:justify-start">
@@ -131,7 +137,7 @@ const Cart = () => {
 
                     <div className="flex items-center gap-3 bg-gray-50 rounded-full p-2">
                       <button
-                        onClick={() => changeQuantity(item.id, item.color, item.size, -1)}
+                        onClick={() => changeQuantity(item.id, item.color, item.size, item.bundle, -1)}
                         className="w-10 h-10 rounded-full bg-white text-emerald-600 hover:bg-emerald-50 transition-colors flex items-center justify-center shadow-sm"
                       >
                         <FaMinus size={14} />
@@ -140,7 +146,7 @@ const Cart = () => {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => changeQuantity(item.id, item.color, item.size, 1)}
+                        onClick={() => changeQuantity(item.id, item.color, item.size, item.bundle, 1)}
                         className="w-10 h-10 rounded-full bg-white text-emerald-600 hover:bg-emerald-50 transition-colors flex items-center justify-center shadow-sm"
                       >
                         <FaPlus size={14} />

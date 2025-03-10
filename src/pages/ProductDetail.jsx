@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaAngleRight, FaAngleLeft, FaPlus, FaMinus, FaTag, FaStar } from 'react-icons/fa6';
+import { FaAngleRight, FaAngleLeft, FaPlus, FaMinus, FaTag, FaStar, FaAmazon } from 'react-icons/fa6';
 import { useUser } from '../context/UserContext';
-import image1 from '../assets/minute_delivery.png';
+import image1 from '../assets/minute_delivery.png'; // Asegúrate de importar las imágenes
 import image2 from '../assets/Best_Prices_Offers.png';
 import image3 from '../assets/Wide_Assortment.png';
 
@@ -17,7 +17,7 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [variantImages, setVariantImages] = useState([]);
-  const [touchStartX, setTouchStartX] = useState(null); // Para el gesto táctil
+  const [touchStartX, setTouchStartX] = useState(null);
   const imageContainer = useRef();
 
   // Procesar imágenes
@@ -47,7 +47,8 @@ const ProductDetail = () => {
         colorImages: details.colorImages || {},
         inventory: details.inventory || {},
         specs: details.specs || {},
-        rating: details.rating || null
+        rating: details.rating || null,
+        amazon_affiliate_link: details.amazon_affiliate_link || null,
       };
     } catch (error) {
       console.error('Error parsing details:', error);
@@ -57,16 +58,14 @@ const ProductDetail = () => {
         colorImages: {},
         inventory: {},
         specs: {},
-        rating: null
+        rating: null,
+        amazon_affiliate_link: null,
       };
     }
   };
 
   const details = parseDetails();
-  const { colors, sizes, inventory, specs, rating, colorImages } = details;
-  const availableSizes = selectedColor 
-    ? sizes.filter(size => inventory[selectedColor]?.[size] > 0)
-    : sizes;
+  const { colors, sizes, inventory, specs, rating, amazon_affiliate_link, colorImages } = details;
 
   // Fetch del producto
   useEffect(() => {
@@ -78,7 +77,7 @@ const ProductDetail = () => {
         
         setProduct({
           ...data,
-          image: processImage(data.image)
+          image: processImage(data.image),
         });
         
         setSelectedColor('');
@@ -153,11 +152,6 @@ const ProductDetail = () => {
 
   const remainingStock = currentStock - (cartItem?.quantity || 0);
 
-  // Calcular ahorros
-  const calculateSavings = (quantity = 1) => {
-    return (product?.price * (product.discount / 100) * quantity).toFixed(2);
-  };
-
   // Añadir al carrito
   const addToCart = () => {
     if (!user || !product) return;
@@ -180,7 +174,7 @@ const ProductDetail = () => {
       stock: currentStock,
       color: selectedColor,
       size: selectedSize,
-      quantity: 1
+      quantity: 1,
     };
 
     const existingIndex = cart.findIndex(item => 
@@ -219,54 +213,7 @@ const ProductDetail = () => {
     updateCart(newCart);
   };
 
-  // Scrolling horizontal con botones
-  const handleScroll = (direction) => {
-    imageContainer.current?.scrollBy({ 
-      left: direction * 200, 
-      behavior: 'smooth' 
-    });
-  };
-
-  // Efecto hover en escritorio
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setZoomStyle({ 
-      transformOrigin: `${x}% ${y}%`, 
-      transform: 'scale(2)' 
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setZoomStyle({ transform: 'scale(1)' });
-  };
-
-  // Gesto táctil para cambiar imágenes
-  const handleTouchStart = (e) => {
-    setTouchStartX(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!touchStartX) return;
-    const touchEndX = e.touches[0].clientX;
-    const deltaX = touchEndX - touchStartX;
-
-    if (deltaX > 50) {
-      // Deslizamiento hacia la derecha
-      setImageIndex((prev) => (prev > 0 ? prev - 1 : imagesToShow.length - 1));
-      setTouchStartX(null);
-    } else if (deltaX < -50) {
-      // Deslizamiento hacia la izquierda
-      setImageIndex((prev) => (prev < imagesToShow.length - 1 ? prev + 1 : 0));
-      setTouchStartX(null);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setTouchStartX(null);
-  };
-
+  // Renderizar el componente
   if (!product) return (
     <div className="text-center py-20 text-gray-600">
       Cargando detalles del producto...
@@ -288,11 +235,31 @@ const ProductDetail = () => {
           <div className="relative group bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
             <div
               className="h-96 relative transition-transform duration-300"
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                setZoomStyle({ 
+                  transformOrigin: `${x}% ${y}%`, 
+                  transform: 'scale(2)' 
+                });
+              }}
+              onMouseLeave={() => setZoomStyle({ transform: 'scale(1)' })}
+              onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
+              onTouchMove={(e) => {
+                if (!touchStartX) return;
+                const touchEndX = e.touches[0].clientX;
+                const deltaX = touchEndX - touchStartX;
+
+                if (deltaX > 50) {
+                  setImageIndex((prev) => (prev > 0 ? prev - 1 : imagesToShow.length - 1));
+                  setTouchStartX(null);
+                } else if (deltaX < -50) {
+                  setImageIndex((prev) => (prev < imagesToShow.length - 1 ? prev + 1 : 0));
+                  setTouchStartX(null);
+                }
+              }}
+              onTouchEnd={() => setTouchStartX(null)}
             >
               <img
                 src={mainImage}
@@ -308,7 +275,7 @@ const ProductDetail = () => {
               )}
             </div>
           </div>
-    
+
           {imagesToShow.length > 1 && (
             <div className="relative">
               <div className="flex justify-center gap-2 mb-3">
@@ -323,7 +290,7 @@ const ProductDetail = () => {
                   />
                 ))}
               </div>
-    
+
               <div className="relative group">
                 <div
                   ref={imageContainer}
@@ -347,16 +314,16 @@ const ProductDetail = () => {
                     </button>
                   ))}
                 </div>
-    
+
                 <div className="absolute inset-0 flex items-center justify-between pointer-events-none">
                   <button
-                    onClick={() => handleScroll(-1)}
+                    onClick={() => imageContainer.current?.scrollBy({ left: -200, behavior: 'smooth' })}
                     className="p-2 bg-white/90 backdrop-blur-sm shadow-md rounded-full pointer-events-auto transform -translate-x-2 hover:-translate-x-3 transition-all hover:bg-emerald-50"
                   >
                     <FaAngleLeft className="text-lg text-gray-700" />
                   </button>
                   <button
-                    onClick={() => handleScroll(1)}
+                    onClick={() => imageContainer.current?.scrollBy({ left: 200, behavior: 'smooth' })}
                     className="p-2 bg-white/90 backdrop-blur-sm shadow-md rounded-full pointer-events-auto transform translate-x-2 hover:translate-x-3 transition-all hover:bg-emerald-50"
                   >
                     <FaAngleRight className="text-lg text-gray-700" />
@@ -394,9 +361,9 @@ const ProductDetail = () => {
                     <div className="flex gap-2 items-center text-emerald-600">
                       <FaTag className="text-sm" />
                       <span className="font-bold">
-                        Ahorras ${calculateSavings()}
+                        Ahorras ${(product.price * (product.discount / 100)).toFixed(2)}
                         {cartItem?.quantity > 1 && (
-                          <span> (${calculateSavings(cartItem.quantity)} total)</span>
+                          <span> (${(product.price * (product.discount / 100) * cartItem.quantity).toFixed(2)} total)</span>
                         )}
                       </span>
                     </div>
@@ -409,9 +376,57 @@ const ProductDetail = () => {
                 </span>
               </div>
             </div>
-      
+
             {user ? (
               <div className="space-y-5 mt-6">
+                {/* Selectores de color y talla */}
+                {colors.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Color:
+                    </label>
+                    <div className="flex gap-2">
+                      {colors.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => setSelectedColor(color)}
+                          className={`px-4 py-2 rounded-full border ${
+                            selectedColor === color
+                              ? "bg-emerald-500 text-white"
+                              : "bg-white text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {color}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {sizes.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Talla:
+                    </label>
+                    <div className="flex gap-2">
+                      {sizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`px-4 py-2 rounded-full border ${
+                            selectedSize === size
+                              ? "bg-emerald-500 text-white"
+                              : "bg-white text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Botón de añadir al carrito */}
                 <div className="flex items-center gap-6">
                   {cartItem ? (
                     <>
@@ -440,7 +455,7 @@ const ProductDetail = () => {
                         </span>
                         {product.discount > 0 && (
                           <span className="text-sm font-medium text-emerald-600">
-                            Ahorro total: ${calculateSavings(cartItem.quantity)}
+                            Ahorro total: ${(product.price * (product.discount / 100) * cartItem.quantity).toFixed(2)}
                           </span>
                         )}
                       </div>
@@ -456,6 +471,8 @@ const ProductDetail = () => {
                     </button>
                   )}
                 </div>
+
+                {/* Disponibilidad */}
                 {(colors.length > 0 || sizes.length > 0) && (
                   <div className="flex items-center gap-3 py-3">
                     <span className="font-bold text-gray-900">Disponibilidad:</span>
@@ -472,6 +489,8 @@ const ProductDetail = () => {
                     </span>
                   </div>
                 )}
+
+               
               </div>
             ) : (
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg shadow-sm border border-blue-100 mt-6">
@@ -485,7 +504,8 @@ const ProductDetail = () => {
               </div>
             )}
           </div>
-    
+
+          {/* Descripción del Producto */}
           {product.description && (
             <div className="pt-6 border-t border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Descripción</h2>
@@ -498,7 +518,24 @@ const ProductDetail = () => {
               </div>
             </div>
           )}
-    
+ {/* Botón de compra en Amazon */}
+ {amazon_affiliate_link && (
+                  <div className="mt-4">
+                    <a
+                      href={amazon_affiliate_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white px-8 py-3 rounded-lg text-lg font-bold transition-all flex items-center justify-center gap-3 shadow-lg transform hover:-translate-y-0.5"
+                    >
+                      <FaAmazon className="text-xl" />
+                      Comprar en Amazon
+                    </a>
+                    <p className="text-sm text-gray-500 mt-2">
+                      También puedes comprar este producto en Amazon.
+                    </p>
+                  </div>
+                )}
+          {/* Especificaciones del Producto */}
           {Object.keys(specs).length > 0 && (
             <div className="pt-6 border-t border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Especificaciones</h2>
@@ -547,11 +584,11 @@ const ProductDetail = () => {
             <img src={image3} alt="Amplia variedad" className="w-16 h-16 mb-4" />
             <div>
               <h3 className="font-bold text-lg text-gray-900 mb-2">
-              Productos probados, calidad garantizada.
+                Productos probados, calidad garantizada.
               </h3>
               <p className="text-gray-600">
-          una amplia selección de artículos en cuidado personal, tecnología y mucho más.
-              ¡Encuentra lo que necesitas con la garantía de calidad que nos respalda!
+                Una amplia selección de artículos en cuidado personal, tecnología y mucho más.
+                ¡Encuentra lo que necesitas con la garantía de calidad que nos respalda!
               </p>
             </div>
           </div>

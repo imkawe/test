@@ -368,25 +368,33 @@ const ProductDetail = () => {
                 {/* Selector de Color */}
                 {more_details?.colors?.length > 0 && (
   <div>
-    <label className="block text-sm font-bold text-gray-900 mb-2">Color:</label>
+    {/* Etiqueta para el título */}
+    <label className="block text-xs font-bold text-gray-900 mb-1">Color:</label>
+    
+    {/* Contenedor para los botones de colores */}
     <div className="flex flex-wrap gap-2">
       {more_details.colors.map((color) => (
         <button
           key={color}
           onClick={() => setSelectedColor(color)}
-          className={`px-4 py-2 text-sm sm:text-base rounded-lg border ${
+          className={`flex items-center gap-1 px-2 py-1 text-xs rounded-md border transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
             selectedColor === color
               ? "bg-emerald-500 text-white border-emerald-600"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-          } transition-all whitespace-nowrap`}
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+          }`}
         >
-          {color}
+          {/* Círculo de color */}
+          <span
+            style={{ backgroundColor: color }}
+            className="w-4 h-4 rounded-full border border-gray-300"
+          ></span>
+          {/* Nombre del color */}
+          <span>{color}</span>
         </button>
       ))}
     </div>
   </div>
-)}
-                {/* Selector de Talla */}
+)}            {/* Selector de Talla */}
                 {more_details?.sizes?.length > 0 && (
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Talla:</label>
@@ -405,6 +413,26 @@ const ProductDetail = () => {
                     </div>
                   </div>
                 )}
+                {more_details?.bundle?.length > 0 && (
+  <div className="mt-6">
+    <label className="block text-sm font-bold text-gray-900 mb-2">Bundle (Pack):</label>
+    <div className="flex flex-wrap gap-2">
+      {more_details.bundle.map((bundle, index) => (
+        <button
+          key={index}
+          onClick={() => setSelectedBundle(bundle)}
+          className={`px-4 py-2 rounded-full border ${
+            selectedBundle === bundle
+              ? "bg-emerald-500 text-white"
+              : "bg-white text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          {bundle}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
                 {/* Botón de añadir al carrito */}
                 <div className="flex items-center gap-6">
@@ -500,26 +528,7 @@ const ProductDetail = () => {
           {/* Bundle (Pack) */}
     {/* Selector de Bundle */}
 {/* Selector de Bundle */}
-{more_details?.bundle?.length > 0 && (
-  <div className="mt-6">
-    <label className="block text-sm font-bold text-gray-900 mb-2">Bundle (Pack):</label>
-    <div className="flex flex-wrap gap-2">
-      {more_details.bundle.map((bundle, index) => (
-        <button
-          key={index}
-          onClick={() => setSelectedBundle(bundle)}
-          className={`px-4 py-2 rounded-full border ${
-            selectedBundle === bundle
-              ? "bg-emerald-500 text-white"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          {bundle}
-        </button>
-      ))}
-    </div>
-  </div>
-)}
+
 
           {/* Material */}
           {more_details?.material && (

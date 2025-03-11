@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import banner1 from "../assets/banner.jpg"; // Importa las imágenes de los banners
 import banner2 from "../assets/banner2.png";
-
+import banner3 from "../assets/banner3.png";
 import logo from "../assets/ib.png";
 import Footer from "../components/Footer";
 import { FaTag, FaStar } from 'react-icons/fa6';
@@ -20,7 +20,7 @@ const Home = ({ searchQuery = "" }) => {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
 
   // Lista de banners
-  const banners = [banner1, banner2];
+  const banners = [banner1, banner2,banner3];
 
   // Cambiar el banner cada 7 segundos
   useEffect(() => {

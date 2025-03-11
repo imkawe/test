@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { Link, useNavigate } from "react-router-dom";
 import { FaPlus, FaMinus } from "react-icons/fa";
-import bannerDesktop from "../assets/banner.jpg";
-import bannerMobile from "../assets/banner-mobile.jpg";
+import banner1 from "../assets/banner.jpg"; // Importa las imágenes de los banners
+import banner2 from "../assets/banner2.png";
+
 import logo from "../assets/ib.png";
 import Footer from "../components/Footer";
-import {  FaTag, FaStar } from 'react-icons/fa6';
+import { FaTag, FaStar } from 'react-icons/fa6';
+
 const Home = ({ searchQuery = "" }) => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -14,16 +16,31 @@ const Home = ({ searchQuery = "" }) => {
   const { user } = useUser();
   const navigate = useNavigate();
 
+  // Estado para el banner actual
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
+  // Lista de banners
+  const banners = [banner1, banner2];
+
+  // Cambiar el banner cada 7 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % banners.length);
+    }, 7000); // Cambia cada 7 segundos
+
+    return () => clearInterval(interval); // Limpiar el intervalo al desmontar el componente
+  }, [banners.length]);
+
   // Obtener productos desde la API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
         const data = await response.json();
-  
+
         // Ordenar productos por created_at (más recientes primero)
         const sortedProducts = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  
+
         setProducts(sortedProducts);
         setFilteredProducts(sortedProducts); // Mostrar productos ordenados
       } catch (error) {
@@ -99,14 +116,9 @@ const Home = ({ searchQuery = "" }) => {
       {/* Banner Promocional */}
       <div className="w-full mb-6 sm:mb-8">
         <img
-          src={bannerMobile}
+          src={banners[currentBannerIndex]} // Mostrar el banner actual
           alt="Oferta especial"
-          className="w-full sm:hidden rounded-lg shadow-md"
-        />
-        <img
-          src={bannerDesktop}
-          alt="Oferta especial"
-          className="w-full hidden sm:block rounded-lg shadow-md"
+          className="w-full rounded-lg shadow-md"
         />
       </div>
 
@@ -123,13 +135,13 @@ const Home = ({ searchQuery = "" }) => {
             >
               {/* Etiquetas superiores */}
               <div className="flex flex-col sm:flex-row sm:justify-between items-start mb-2 gap-1">
-  {product.discount > 0 && (
-    <div className="flex items-center bg-red-500 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-bold gap-1">
-      <FaTag className="text-sm" />
-      <span>{product.discount}% OFF</span>
-    </div>
-  )}
-</div>
+                {product.discount > 0 && (
+                  <div className="flex items-center bg-red-500 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-bold gap-1">
+                    <FaTag className="text-sm" />
+                    <span>{product.discount}% OFF</span>
+                  </div>
+                )}
+              </div>
 
               {/* Contenedor de imagen ajustado */}
               <div className="relative w-full h-32 sm:h-40 overflow-hidden mb-3 sm:mb-4">
@@ -147,62 +159,62 @@ const Home = ({ searchQuery = "" }) => {
 
               {/* Contenido inferior */}
               <div className="flex flex-col flex-grow">
-  <h3 className="font-semibold text-base sm:text-lg cursor-pointer hover:text-blue-600 line-clamp-2 text-left mb-2 sm:mb-3">
-    {product.name}
-  </h3>
+                <h3 className="font-semibold text-base sm:text-lg cursor-pointer hover:text-blue-600 line-clamp-2 text-left mb-2 sm:mb-3">
+                  {product.name}
+                </h3>
 
-  <div className="mt-auto">
-    <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
-      {/* Precios */}
-      <div className="flex flex-col">
-        {product.discount > 0 && (
-          <span className="text-gray-400 line-through text-sm sm:text-base">
-            ${product.price.toFixed(2)}
-          </span>
-        )}
-        <span
-          className="text-lg sm:text-xl font-bold"
-          style={{ color: "rgb(0, 0, 0)" }} // Aplicar el color personalizado
-        >
-          ${discountedPrice.toFixed(2)}
-        </span>
-      </div>
+                <div className="mt-auto">
+                  <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
+                    {/* Precios */}
+                    <div className="flex flex-col">
+                      {product.discount > 0 && (
+                        <span className="text-gray-400 line-through text-sm sm:text-base">
+                          ${product.price.toFixed(2)}
+                        </span>
+                      )}
+                      <span
+                        className="text-lg sm:text-xl font-bold"
+                        style={{ color: "rgb(0, 0, 0)" }} // Aplicar el color personalizado
+                      >
+                        ${discountedPrice.toFixed(2)}
+                      </span>
+                    </div>
 
-      {/* Botones */}
-      {user && (
-        <div className="w-full sm:w-auto">
-          {cartItem ? (
-            <div className="flex items-center justify-between sm:justify-start gap-2">
-              <button
-                onClick={() => removeFromCart(product.id)}
-                className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
-              >
-                <FaMinus size={14} />
-              </button>
-              <span className="font-bold text-base sm:text-lg">{cartItem.quantity}</span>
-              <button
-                onClick={() => addToCart(product)}
-                className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition"
-                disabled={product.stock === 0}
-              >
-                <FaPlus size={14} />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => addToCart(product)}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-1 text-sm sm:text-base"
-              disabled={product.stock === 0}
-            >
-              <FaPlus className="text-xs sm:text-sm" />
-              {product.stock > 0 ? "Añadir" : "Agotado"}
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  </div>
-</div>
+                    {/* Botones */}
+                    {user && (
+                      <div className="w-full sm:w-auto">
+                        {cartItem ? (
+                          <div className="flex items-center justify-between sm:justify-start gap-2">
+                            <button
+                              onClick={() => removeFromCart(product.id)}
+                              className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
+                            >
+                              <FaMinus size={14} />
+                            </button>
+                            <span className="font-bold text-base sm:text-lg">{cartItem.quantity}</span>
+                            <button
+                              onClick={() => addToCart(product)}
+                              className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition"
+                              disabled={product.stock === 0}
+                            >
+                              <FaPlus size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => addToCart(product)}
+                            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-1 text-sm sm:text-base"
+                            disabled={product.stock === 0}
+                          >
+                            <FaPlus className="text-xs sm:text-sm" />
+                            {product.stock > 0 ? "Añadir" : "Agotado"}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           );
         })}

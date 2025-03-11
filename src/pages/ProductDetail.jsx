@@ -367,24 +367,25 @@ const ProductDetail = () => {
               <div className="space-y-5 mt-6">
                 {/* Selector de Color */}
                 {more_details?.colors?.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Color:</label>
-                    <div className="flex gap-2">
-                      {more_details.colors.map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => setSelectedColor(color)}
-                          className={`px-4 py-2 rounded-full border ${
-                            selectedColor === color ? "bg-emerald-500 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
-                          }`}
-                        >
-                          {color}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
+  <div>
+    <label className="block text-sm font-bold text-gray-900 mb-2">Color:</label>
+    <div className="flex flex-wrap gap-2">
+      {more_details.colors.map((color) => (
+        <button
+          key={color}
+          onClick={() => setSelectedColor(color)}
+          className={`px-4 py-2 text-sm sm:text-base rounded-lg border ${
+            selectedColor === color
+              ? "bg-emerald-500 text-white border-emerald-600"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+          } transition-all whitespace-nowrap`}
+        >
+          {color}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
                 {/* Selector de Talla */}
                 {more_details?.sizes?.length > 0 && (
                   <div>

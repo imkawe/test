@@ -369,30 +369,38 @@ const ProductDetail = () => {
                 {more_details?.colors?.length > 0 && (
   <div>
     {/* Etiqueta para el título */}
-    <label className="block text-xs font-bold text-gray-900 mb-1">Color:</label>
+    <label className="block text-sm font-bold text-gray-900 mb-2">Color:</label>
     
     {/* Contenedor para los botones de colores */}
     <div className="flex flex-wrap gap-2">
-      {more_details.colors.map((color) => (
-        <button
-          key={color}
-          onClick={() => setSelectedColor(color)}
-          className={`flex items-center gap-1 px-2 py-1 text-xs rounded-md border transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
-            selectedColor === color
-              ? "bg-emerald-500 text-white border-emerald-600"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+  {more_details.colors.map((color) => {
+    const isSelected = selectedColor === color;
+    const colorName = color.replace(/([A-Z])/g, ' $1').replace(/^a34/i, '').trim();
+
+    return (
+      <button
+        key={color}
+        onClick={() => setSelectedColor(color)}
+        aria-pressed={isSelected}
+        className={`px-3 py-1.5 text-sm rounded-md transition-all
+          border focus:outline-none focus:ring-2 focus:ring-emerald-500/80
+          ${
+            isSelected
+              ? "bg-emerald-500/10 border-emerald-500 text-emerald-700 font-semibold"
+              : "bg-white border-gray-200 text-gray-600 hover:border-emerald-300 hover:text-emerald-600"
           }`}
-        >
-          {/* Círculo de color */}
-          <span
-            style={{ backgroundColor: color }}
-            className="w-4 h-4 rounded-full border border-gray-300"
-          ></span>
-          {/* Nombre del color */}
-          <span>{color}</span>
-        </button>
-      ))}
-    </div>
+      >
+        {/* Solo texto con indicador de selección */}
+        <span className="relative">
+          {colorName}
+          {isSelected && (
+            <span className="absolute -right-2.5 -top-1.5 text-emerald-500">•</span>
+          )}
+        </span>
+      </button>
+    );
+  })}
+</div>
   </div>
 )}            {/* Selector de Talla */}
                 {more_details?.sizes?.length > 0 && (
